@@ -33,7 +33,7 @@ class OrderProductNestedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderProduct
-        fields = ['id', 'product', 'product_name', 'quantity', 'price', 'wholesale_price', 'total']
+        fields = ['id', 'product', 'product_name', 'quantity', 'price']
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -44,7 +44,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             'id', 'business_user', 'business_user_name', 'order_date', 'total_price',
-            'shipping_address', 'billing_address', 'status', 'payment_terms',
+             'billing_address', 'status',
             'order_type', 'order_products'
         ]
 
@@ -61,7 +61,6 @@ class OrderSerializer(serializers.ModelSerializer):
             product = product_data.get('product')
             quantity = product_data.get('quantity')
             price = product_data.get('price')
-            wholesale_price = product_data.get('wholesale_price')
             total = price * quantity
 
             OrderProduct.objects.create(
@@ -69,7 +68,7 @@ class OrderSerializer(serializers.ModelSerializer):
                 product=product,
                 quantity=quantity,
                 price=price,
-                wholesale_price=wholesale_price,
+                
                 total=total
             )
 
@@ -89,10 +88,8 @@ class OrderSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         order_products_data = validated_data.pop('order_products', [])
         instance.total_price = validated_data.get('total_price', instance.total_price)
-        instance.shipping_address = validated_data.get('shipping_address', instance.shipping_address)
         instance.billing_address = validated_data.get('billing_address', instance.billing_address)
         instance.status = validated_data.get('status', instance.status)
-        instance.payment_terms = validated_data.get('payment_terms', instance.payment_terms)
         instance.order_type = validated_data.get('order_type', instance.order_type)
         instance.save()
 
@@ -103,14 +100,14 @@ class OrderSerializer(serializers.ModelSerializer):
                 order_product = OrderProduct.objects.get(id=order_product_id, order=instance)
                 order_product.quantity = product_data.get('quantity', order_product.quantity)
                 order_product.price = product_data.get('price', order_product.price)
-                order_product.wholesale_price = product_data.get('wholesale_price', order_product.wholesale_price)
+                
                 order_product.total = order_product.price * order_product.quantity
                 order_product.save()
             else:
                 product = product_data.get('product')
                 quantity = product_data.get('quantity')
                 price = product_data.get('price')
-                wholesale_price = product_data.get('wholesale_price')
+                
                 total = price * quantity
 
                 OrderProduct.objects.create(
@@ -118,7 +115,7 @@ class OrderSerializer(serializers.ModelSerializer):
                     product=product,
                     quantity=quantity,
                     price=price,
-                    wholesale_price=wholesale_price,
+                    
                     total=total
                 )
 
